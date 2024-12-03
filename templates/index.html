@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Главная страница</title>
+</head>
+<body>
+    <div style="text-align: right;">
+        <a href="{{ url_for('add_user') }}">
+            <button>Добавить пользователя</button>
+        </a>
+    </div>
+    <h1>Добро пожаловать</h1>
+    <a href="{{ url_for('psychologist') }}">Психолог</a>
+    <a href="{{ url_for('test', user_id=1) }}">Испытуемый 1</a>
+</body>
+</html>

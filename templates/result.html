@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты теста</title>
+</head>
+<body>
+    <h1>Результаты теста</h1>
+    <table border="1" style="width: 100%; text-align: center;">
+        <thead>
+            <tr>
+                <th>Таблица</th>
+                <th>Ошибки</th>
+                <th>Время (сек)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in test_results %}
+                <tr>
+                    <td>Таблица {{ result.table_index + 1 }}</td>
+                    <td>{{ result.mistakes }}</td>
+                    <td>{{ result.time_spent.total_seconds() }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Итоговые результаты</h3>
+    <p>Общее количество ошибок: {{ total_mistakes }}</p>
+    <p>Общее время: {{ total_time }} секунд</p>
+
+    <a href="{{ url_for('index') }}">Вернуться на главную</a>
+</body>
+</html>

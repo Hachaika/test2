@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Психолог</title>
+</head>
+<body>
+    <h1>Пользователи</h1>
+
+    <form method="POST">
+    {% for user in users %}
+        <input type="checkbox" name="assign_test_{{ user.id }}" {% if user.test_assigned %}checked{% endif %}>
+        {{ user.name }}<br>
+    {% endfor %}
+    <button type="submit">Назначить тесты</button>
+    </form>
+
+
+</body>
+</html>
