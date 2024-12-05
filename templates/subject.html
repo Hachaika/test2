@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Испытуемый{% endblock %}
+
+{% block content %}
+<h1>Привет, {{ user.name }}</h1>
+<div style="margin-top: 20px;">
+    {% if user.test_assigned %}
+        <form action="{{ url_for('test', user_id=user.id) }}" method="get">
+            <button type="submit" style="
+                padding: 10px 20px;
+                font-size: 16px;
+                color: white;
+                background-color: #4CAF50;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;">
+                Пройти тест
+            </button>
+        </form>
+    {% else %}
+        <p style="font-size: 18px; color: #555;">Тест не назначен</p>
+    {% endif %}
+</div>
+{% endblock %}

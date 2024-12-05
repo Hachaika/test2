@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Администратор{% endblock %}
+
+{% block content %}
+<h1>Панель администратора</h1>
+
+<!-- Форма для добавления пользователя -->
+<h2>Добавить пользователя</h2>
+<form method="post">
+    <input type="hidden" name="action" value="add">
+    <label>Имя:</label>
+    <input type="text" name="name" required>
+    <label>Email:</label>
+    <input type="email" name="email" required>
+    <label>Роль:</label>
+    <select name="role">
+        <option value="subject">Испытуемый</option>
+        <option value="psychologist">Психолог</option>
+        <option value="admin">Администратор</option>
+    </select>
+    <button type="submit">Добавить</button>
+</form>
+
+<!-- Таблица пользователей -->
+<h2>Список пользователей</h2>
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Имя</th>
+            <th>Email</th>
+            <th>Роль</th>
+            <th>Действие</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+                {% if user.role == 'subject' %}
+                    Испытуемый
+                {% elif user.role == 'psychologist' %}
+                    Психолог
+                {% elif user.role == 'admin' %}
+                    Администратор
+                {% endif %}
+            </td>
+            <td>
+                <form method="post" style="display: inline;">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <button type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

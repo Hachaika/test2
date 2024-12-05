@@ -2,34 +2,43 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Результаты теста</title>
+    <title>Результаты</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Результаты теста</h1>
-    <table border="1" style="width: 100%; text-align: center;">
-        <thead>
-            <tr>
-                <th>Таблица</th>
-                <th>Ошибки</th>
-                <th>Время (сек)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in test_results %}
-                <tr>
-                    <td>Таблица {{ result.table_index + 1 }}</td>
-                    <td>{{ result.mistakes }}</td>
-                    <td>{{ result.time_spent.total_seconds() }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h1>Результаты теста</h1>
 
-    <h3>Итоговые результаты</h3>
-    <p>Общее количество ошибок: {{ total_mistakes }}</p>
-    <p>Общее время: {{ total_time }} секунд</p>
+<!-- Table Results -->
+<table>
+    <tr>
+        <th>Таблица</th>
+        <th>Ошибки</th>
+        <th>Время (сек)</th>
+    </tr>
+    {% for result in results %}
+        <tr>
+            <td>{{ result.table_index + 1 }}</td>
+            <td>{{ result.mistakes }}</td>
+            <td>{{ result.time_spent.total_seconds() }}</td>
+        </tr>
+    {% endfor %}
+</table>
 
-    <a href="{{ url_for('index') }}">Вернуться на главную</a>
+<!-- Calculated Metrics -->
+<h2>Рассчитанные показатели</h2>
+<p><strong>Эффективность работы:</strong> {{ efficiency | round(2) }}</p>
+<p><strong>Степень врабатываемости:</strong> {{ workability | round(2) }}</p>
+<p><strong>Психическая устойчивость:</strong> {{ mental_stability | round(2) }}</p>
 </body>
 </html>

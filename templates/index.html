@@ -1,16 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Главная страница</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <div style="text-align: right;">
-        <a href="{{ url_for('add_user') }}">
-            <button>Добавить пользователя</button>
-        </a>
-    </div>
-    <h1>Добро пожаловать</h1>
-    <a href="{{ url_for('psychologist') }}">Психолог</a>
-    <a href="{{ url_for('test', user_id=1) }}">Испытуемый 1</a>
+    <h1>Список пользователей</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>Роль</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.role == 'subject' %}
+                            Испытуемый
+                        {% elif user.role == 'psychologist' %}
+                            Психолог
+                        {% elif user.role == 'admin' %}
+                            Администратор
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('login') }}"><button>Войти</button></a>
 </body>
 </html>

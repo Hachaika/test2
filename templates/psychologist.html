@@ -1,21 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Психолог</title>
-</head>
-<body>
-    <h1>Пользователи</h1>
+{% extends "base.html" %}
 
-    <form method="POST">
-    {% for user in users %}
-        <input type="checkbox" name="assign_test_{{ user.id }}" {% if user.test_assigned %}checked{% endif %}>
-        {{ user.name }}<br>
-    {% endfor %}
-    <button type="submit">Назначить тесты</button>
+{% block title %}Психолог{% endblock %}
+
+{% block content %}
+<h1>Панель психолога</h1>
+
+<h2>Назначение теста пользователям</h2>
+
+{% if users %}
+    <form method="post">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 10%;">ID</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 20%;">Имя</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 20%;">Email</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 20%;">Тест назначен</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 15%;">Назначить тест</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 15%;">Убрать назначение</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ user.id }}</td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ user.name }}</td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ user.email }}</td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ "Да" if user.test_assigned else "Нет" }}</td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                        {% if not user.test_assigned %}
+                            <button type="submit" name="user_id" value="{{ user.id }}">Назначить тест</button>
+                        {% endif %}
+                    </td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                        {% if user.test_assigned %}
+                            <button type="submit" name="remove_assignment" value="{{ user.id }}">Убрать назначение</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </form>
-
-
-</body>
-</html>
+{% else %}
+    <p>Нет доступных пользователей для назначения теста.</p>
+{% endif %}
+{% endblock %}

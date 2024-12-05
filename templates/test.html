@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тест на внимательность</title>
     <style>
         table {
@@ -14,87 +13,81 @@
             height: 50px;
             text-align: center;
             font-size: 24px;
-            border: 1px solid #000;
+            border: 1px solid black;
             cursor: pointer;
         }
         td.clicked {
             background-color: #a3d8ff;
         }
-        .timer {
-            font-size: 18px;
+        .info {
             text-align: center;
-            margin-top: 20px;
-        }
-        .btn-next {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
+            margin: 20px;
             font-size: 18px;
-            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Тест на внимательность - Таблица {{ table_index + 1 }}</h1>
-    <p>Нажимайте на клетки в порядке возрастания чисел.</p>
-
-    <form method="POST">
-        <input type="hidden" name="user_id" value="{{ user_id }}">
-        <input type="hidden" name="table_index" value="{{ table_index }}">
-        <table>
-            {% for row in table %}
-                <tr>
-                    {% for cell in row %}
-                        <td class="cell" data-number="{{ cell }}">{{ cell }}</td>
-                    {% endfor %}
-                </tr>
+<h1 style="text-align: center;">Тест на внимательность - Таблица {{ table_index + 1 }}</h1>
+<div class="info">
+    <div>Ошибок: <span id="mistakes">{{ mistakes }}</span></div>
+    <div>Время: <span id="timer">{{ time_spent }}</span> секунд</div>
+</div>
+<table>
+    {% for row in table %}
+        <tr>
+            {% for cell in row %}
+                <td class="cell" data-number="{{ cell }}">{{ cell }}</td>
             {% endfor %}
-        </table>
+        </tr>
+    {% endfor %}
+</table>
 
-        <div class="timer" id="timer">
-            Время: {{ time_spent }} секунд
-        </div>
-
-        {% if table_index < 4 %}
-            <button type="submit" class="btn-next">Завершить таблицу и перейти к следующей</button>
-        {% endif %}
-    </form>
-
-    <script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
         let currentNumber = 1;
-        let timerStart = new Date().getTime();
+        const timerStart = new Date().getTime();
+        const timerElement = document.getElementById("timer");
+        const mistakesElement = document.getElementById("mistakes");
 
-        // Обновление секундомера
+        // Update the timer
         setInterval(() => {
-            let elapsed = Math.floor((new Date().getTime() - timerStart) / 1000);
-            document.getElementById('timer').innerHTML = 'Время: ' + elapsed + ' секунд';
+            const elapsed = Math.floor((new Date().getTime() - timerStart) / 1000);
+            timerElement.textContent = elapsed;
         }, 1000);
 
-        // Функция для обработки кликов по клеткам
-        document.querySelectorAll('.cell').forEach(cell => {
-            cell.addEventListener('click', function() {
-                let cellNumber = parseInt(this.getAttribute('data-number'));
+        // Attach click event listeners to cells
+        document.querySelectorAll(".cell").forEach((cell) => {
+            cell.addEventListener("click", function () {
+                const cellNumber = parseInt(this.getAttribute("data-number"));
 
-                // Если клик по правильной клетке
-                if (cellNumber === currentNumber) {
-                    this.classList.add('clicked');
-                    currentNumber++;
-                    // Отправляем данные на сервер
-                    let formData = new FormData(document.querySelector('form'));
-                    formData.append('numbers', cellNumber);
+                // Send the clicked number to the server
+                fetch(window.location.href, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ number: cellNumber }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.correct) {
+                            // Mark the cell as clicked
+                            this.classList.add("clicked");
+                            currentNumber++;
+                        } else {
+                            // Increment mistakes
+                            mistakesElement.textContent = data.mistakes;
+                        }
 
-                    fetch(window.location.href, {
-                        method: 'POST',
-                        body: formData
-                    }).then(response => response.json())
-                      .then(data => {
-                          if (data.completed) {
-                              window.location.href = '/test?user_id={{ user_id }}&table_index={{ table_index + 1 }}';
-                          }
-                      });
-                }
+                        // Handle table completion or test completion
+                        if (data.next_table) {
+                            window.location.href = `/test?user_id={{ user_id }}`;
+                        } else if (data.completed) {
+                            window.location.href = "/result";
+                        }
+                    })
+                    .catch((error) => console.error("Ошибка сети:", error));
             });
         });
-    </script>
+    });
+</script>
 </body>
 </html>
