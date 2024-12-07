@@ -106,18 +106,6 @@ def subject_page():
     return render_template('subject.html', user=user)
 
 
-@app.route('/update_mistakes', methods=['POST'])
-def update_mistakes():
-    data = request.get_json()
-    user_id = data['user_id']
-    mistakes = data['mistakes']
-
-    # Обновляем количество ошибок для пользователя в базе данных
-    # Пример: db.update_user_mistakes(user_id, mistakes)
-
-    return jsonify({'success': True})
-
-
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     user_id = session.get('user_id')
@@ -145,7 +133,6 @@ def test():
             end_time = time.time()
             time_spent = int(end_time - test_session['start_time'])
 
-            # Save table results
             result = TestResult(
                 user_id=user_id,
                 table_index=current_table_index,
@@ -155,7 +142,6 @@ def test():
             db.session.add(result)
             db.session.commit()
 
-            # Progress to the next table
             if current_table_index < 4:
                 test_session['current_table_index'] += 1
                 test_session['start_time'] = time.time()
@@ -189,19 +175,36 @@ def result():
     results = TestResult.query.filter_by(user_id=user_id).order_by(TestResult.table_index).all()
 
     # Расчет метрик
-    total_time = sum(result.time_spent.total_seconds() for result in results)
     times = [result.time_spent.total_seconds() for result in results]
+
+    # Убедитесь, что у нас есть 5 таблиц
+    if len(times) < 5:
+        return "Недостаточно данных для расчета."
+
+    total_time = sum(times)  # Сумма времени по всем таблицам
 
     efficiency = total_time / 5
     workability = times[0] / efficiency
     mental_stability = times[3] / efficiency
+
+    workability_interpretation = (
+        "Хорошая врабатываемость" if workability < 1 else
+        "Долгое сосредоточение на работе"
+    )
+
+    mental_stability_interpretation = (
+        "Хорошая психическая устойчивость" if mental_stability < 1 else
+        "Низкая психическая устойчивость"
+    )
 
     return render_template(
         'result.html',
         results=results,
         efficiency=efficiency,
         workability=workability,
-        mental_stability=mental_stability
+        mental_stability=mental_stability,
+        workability_interpretation=workability_interpretation,
+        mental_stability_interpretation=mental_stability_interpretation
     )
 
 
@@ -275,6 +278,8 @@ def admin_page():
             # Удаление пользователя
             user = User.query.get(user_id)
             if user:
+                # Удаление всех записей тестов, связанных с пользователем
+                TestResult.query.filter_by(user_id=user_id).delete()
                 db.session.delete(user)
                 db.session.commit()
 

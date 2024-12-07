@@ -48,11 +48,13 @@
                 {% endif %}
             </td>
             <td>
+                {% if user.role != 'admin' %}
                 <form method="post" style="display: inline;">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="user_id" value="{{ user.id }}">
                     <button type="submit">Удалить</button>
                 </form>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

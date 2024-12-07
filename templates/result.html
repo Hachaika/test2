@@ -1,5 +1,9 @@
-<!DOCTYPE html>
-<html lang="ru">
+{% extends "base.html" %}
+
+{% block title %}Психолог{% endblock %}
+
+{% block content %}
+
 <head>
     <meta charset="UTF-8">
     <title>Результаты</title>
@@ -17,9 +21,8 @@
     </style>
 </head>
 <body>
-<h1>Результаты теста</h1>
+<h1 style="text-align: center;">Результаты теста</h1>
 
-<!-- Table Results -->
 <table>
     <tr>
         <th>Таблица</th>
@@ -35,10 +38,29 @@
     {% endfor %}
 </table>
 
-<!-- Calculated Metrics -->
-<h2>Рассчитанные показатели</h2>
-<p><strong>Эффективность работы:</strong> {{ efficiency | round(2) }}</p>
-<p><strong>Степень врабатываемости:</strong> {{ workability | round(2) }}</p>
-<p><strong>Психическая устойчивость:</strong> {{ mental_stability | round(2) }}</p>
+<h2 style="text-align: center;">Таблица рассчитанных показателей</h2>
+<table>
+    <tr>
+        <th>Показатель</th>
+        <th>Значение</th>
+        <th>Интерпретация</th>
+    </tr>
+    <tr>
+        <td>Эффективность работы</td>
+        <td>{{ efficiency | round(2) }}</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Степень врабатываемости</td>
+        <td>{{ workability | round(2) }}</td>
+        <td>{{ workability_interpretation }}</td>
+    </tr>
+    <tr>
+        <td>Психическая устойчивость</td>
+        <td>{{ mental_stability | round(2) }}</td>
+        <td>{{ mental_stability_interpretation }}</td>
+    </tr>
+</table>
+
 </body>
-</html>
+{% endblock %}
