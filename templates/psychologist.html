@@ -16,8 +16,10 @@
                     <th style="border: 1px solid black; padding: 8px; text-align: center; width: 20%;">Имя</th>
                     <th style="border: 1px solid black; padding: 8px; text-align: center; width: 20%;">Email</th>
                     <th style="border: 1px solid black; padding: 8px; text-align: center; width: 20%;">Тест назначен</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 15%;">Тест пройден</th>
                     <th style="border: 1px solid black; padding: 8px; text-align: center; width: 15%;">Назначить тест</th>
                     <th style="border: 1px solid black; padding: 8px; text-align: center; width: 15%;">Убрать назначение</th>
+                    <th style="border: 1px solid black; padding: 8px; text-align: center; width: 15%;">Результаты</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +29,7 @@
                     <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ user.name }}</td>
                     <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ user.email }}</td>
                     <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ "Да" if user.test_assigned else "Нет" }}</td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">{{ "Да" if user.test_passed else "Нет" }}</td>
                     <td style="border: 1px solid black; padding: 8px; text-align: center;">
                         {% if not user.test_assigned %}
                             <button type="submit" name="user_id" value="{{ user.id }}">Назначить тест</button>
@@ -36,6 +39,9 @@
                         {% if user.test_assigned %}
                             <button type="submit" name="remove_assignment" value="{{ user.id }}">Убрать назначение</button>
                         {% endif %}
+                    </td>
+                    <td style="border: 1px solid black; padding: 8px; text-align: center;">
+                        <button type="submit" name="view_results" value="{{ user.id }}">Просмотреть результаты</button>
                     </td>
                 </tr>
                 {% endfor %}

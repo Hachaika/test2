@@ -1,7 +1,8 @@
 from db import db
+from datetime import datetime
 
 
-class TestResult(db.Model):
+class Result(db.Model):
     __tablename__ = 'test_results'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -34,23 +35,24 @@ class User(db.Model):
         self.email = email
         self.role = role
 
+    @property
+    def test_passed(self):
+        return Result.query.filter_by(user_id=self.id).count() > 0
 
-class Test(db.Model):
-    __tablename__ = 'tests'
+
+class Score(db.Model):
+    __tablename__ = 'scores'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    mistakes = db.Column(db.Integer, default=0)
-    time_spent = db.Column(db.Interval, nullable=False)
-    table_index = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
+    efficiency_score = db.Column(db.Float, nullable=False)
+    workability_score = db.Column(db.Float, nullable=False)
+    mental_score = db.Column(db.Float, nullable=False)
 
-    user = db.relationship('User', backref=db.backref('tests', lazy=True))
-
-    def __init__(self, user_id, time_spent, table_index):
-        self.user_id = user_id
-        self.time_spent = time_spent
-        self.table_index = table_index
+    def __init__(self, efficiency_score, workability_score, mental_score):
+        self.efficiency_score = efficiency_score
+        self.workability_score = workability_score
+        self.mental_score = mental_score
 
     def __repr__(self):
-        return f'<Test user_id={self.user_id} table_index={self.table_index} mistakes={self.mistakes} time_spent={self.time_spent}>'
-
+        return f'<Score id={self.id} efficiency={self.efficiency_score} workability={self.workability_score} mental={self.mental_score}>'

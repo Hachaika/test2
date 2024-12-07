@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 from db import db
-from models import User
+from models import User, Score
 import time
 from datetime import timedelta
 from random import shuffle
@@ -19,7 +19,7 @@ def index():
     return render_template('index.html', users=users)
 
 
-class TestResult(db.Model):
+class Result(db.Model):
     __tablename__ = 'test_results'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -43,7 +43,7 @@ class TestResult(db.Model):
                f'time_spent={self.time_spent}>'
 
 
-class TestTable:
+class Table:
     def __init__(self, rows, cols, numbers=None):
         self.rows = rows
         self.cols = cols
@@ -115,7 +115,7 @@ def test():
     test_session = session.get('test_session')
     if not test_session:
         test_session = {
-            'tables': [TestTable(5, 5).get_state() for _ in range(5)],
+            'tables': [Table(5, 5).get_state() for _ in range(5)],
             'current_table_index': 0,
             'start_time': time.time()
         }
@@ -123,7 +123,7 @@ def test():
 
     current_table_index = test_session['current_table_index']
     table_state = test_session['tables'][current_table_index]
-    table = TestTable.from_state(5, 5, table_state)
+    table = Table.from_state(5, 5, table_state)
 
     if request.method == 'POST':
         number = int(request.json.get('number'))
@@ -133,7 +133,7 @@ def test():
             end_time = time.time()
             time_spent = int(end_time - test_session['start_time'])
 
-            result = TestResult(
+            result = Result(
                 user_id=user_id,
                 table_index=current_table_index,
                 mistakes=table.mistakes,
@@ -172,7 +172,7 @@ def result():
     if not user_id:
         return redirect(url_for('login'))
 
-    results = TestResult.query.filter_by(user_id=user_id).order_by(TestResult.table_index).all()
+    results = Result.query.filter_by(user_id=user_id).order_by(Result.table_index).all()
 
     # Расчет метрик
     times = [result.time_spent.total_seconds() for result in results]
@@ -196,6 +196,11 @@ def result():
         "Хорошая психическая устойчивость" if mental_stability < 1 else
         "Низкая психическая устойчивость"
     )
+
+    # Сохранение оценок в базе данных
+    score = Score(efficiency_score=efficiency, workability_score=workability, mental_score=mental_stability)
+    db.session.add(score)
+    db.session.commit()
 
     return render_template(
         'result.html',
@@ -234,24 +239,48 @@ def psychologist_page():
                 user.test_assigned = False  # Убираем назначение
                 db.session.commit()
 
+        # Обработка кнопки "Просмотреть результаты"
+        elif 'view_results' in request.form:
+            user_id = int(request.form['view_results'])
+            return redirect(url_for('user_results', user_id=user_id))
+
     return render_template('psychologist.html', users=users)
 
 
-# Страница добавления пользователя
-@app.route('/add_user', methods=['GET', 'POST'])
-def add_user():
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
+@app.route('/user_results/<int:user_id>')
+def user_results(user_id):
+    results = Result.query.filter_by(user_id=user_id).order_by(Result.table_index).all()
 
-        # Добавляем нового пользователя в базу
-        new_user = User(name=name, email=email, role='user')  # Указываем роль пользователя
-        db.session.add(new_user)
-        db.session.commit()
+    # Расчет метрик
+    times = [result.time_spent.total_seconds() for result in results]
 
-        return redirect(url_for('admin'))  # Перенаправляем на страницу администратора
+    if len(times) < 5:
+        return "Недостаточно данных для расчета."
 
-    return render_template('add_user.html')
+    total_time = sum(times)
+    efficiency = total_time / 5
+    workability = times[0] / efficiency
+    mental_stability = times[3] / efficiency
+
+    workability_interpretation = (
+        "Хорошая врабатываемость" if workability < 1 else
+        "Долгое сосредоточение на работе"
+    )
+
+    mental_stability_interpretation = (
+        "Хорошая психическая устойчивость" if mental_stability < 1 else
+        "Низкая психическая устойчивость"
+    )
+
+    return render_template(
+        'user_results.html',
+        results=results,
+        efficiency=efficiency,
+        workability=workability,
+        mental_stability=mental_stability,
+        workability_interpretation=workability_interpretation,
+        mental_stability_interpretation=mental_stability_interpretation
+    )
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -279,7 +308,7 @@ def admin_page():
             user = User.query.get(user_id)
             if user:
                 # Удаление всех записей тестов, связанных с пользователем
-                TestResult.query.filter_by(user_id=user_id).delete()
+                Result.query.filter_by(user_id=user_id).delete()
                 db.session.delete(user)
                 db.session.commit()
 

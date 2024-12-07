@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты пользователя{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center;">Результаты теста пользователя</h1>
+
+<table style="border-collapse: collapse; width: 80%; margin: 0 auto;">
+    <tr>
+        <th style="border: 1px solid black; padding: 8px;">Таблица</th>
+        <th style="border: 1px solid black; padding: 8px;">Ошибки</th>
+        <th style="border: 1px solid black; padding: 8px;">Время (сек)</th>
+    </tr>
+    {% for result in results %}
+        <tr>
+            <td style="border: 1px solid black; padding: 8px;">{{ result.table_index + 1 }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ result.mistakes }}</td>
+            <td style="border: 1px solid black; padding: 8px;">{{ result.time_spent.total_seconds() }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h2 style="text-align: center;">Таблица рассчитанных показателей</h2>
+<table style="border-collapse: collapse; width: 80%; margin: 0 auto;">
+    <tr>
+        <th style="border: 1px solid black; padding: 8px;">Показатель</th>
+        <th style="border: 1px solid black; padding: 8px;">Значение</th>
+        <th style="border: 1px solid black; padding: 8px;">Интерпретация</th>
+    </tr>
+    <tr>
+        <td style="border: 1px solid black; padding: 8px;">Эффективность работы</td>
+        <td style="border: 1px solid black; padding: 8px;">{{ efficiency | round(2) }}</td>
+        <td style="border: 1px solid black; padding: 8px;"></td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid black; padding: 8px;">Степень врабатываемости</td>
+        <td style="border: 1px solid black; padding: 8px;">{{ workability | round(2) }}</td>
+        <td style="border: 1px solid black; padding: 8px;">{{ workability_interpretation }}</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid black; padding: 8px;">Психическая устойчивость</td>
+        <td style="border: 1px solid black; padding: 8px;">{{ mental_stability | round(2) }}</td>
+        <td style="border: 1px solid black; padding: 8px;">{{ mental_stability_interpretation }}</td>
+    </tr>
+</table>
+
+{% endblock %}
