@@ -13,12 +13,6 @@ app.config['SECRET_KEY'] = '77277'
 db.init_app(app)
 
 
-@app.route('/')
-def index():
-    users = User.query.all()  # Получаем всех пользователей
-    return render_template('index.html', users=users)
-
-
 class Result(db.Model):
     __tablename__ = 'test_results'
 
@@ -87,6 +81,12 @@ class Table:
         obj.current_index = state['current_index']
         obj.mistakes = state['mistakes']
         return obj
+
+
+@app.route('/')
+def index():
+    users = User.query.all()  # Получаем всех пользователей
+    return render_template('index.html', users=users)
 
 
 @app.route('/logout')
